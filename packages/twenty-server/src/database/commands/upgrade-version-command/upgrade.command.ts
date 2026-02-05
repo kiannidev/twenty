@@ -18,6 +18,7 @@ import { MigrateNoteTargetToMorphRelationsCommand } from 'src/database/commands/
 import { MigrateTaskTargetToMorphRelationsCommand } from 'src/database/commands/upgrade-version-command/1-17/1-17-migrate-task-target-to-morph-relations.command';
 import { MigrateWorkflowCodeStepsCommand } from 'src/database/commands/upgrade-version-command/1-17/1-17-migrate-workflow-code-steps.command';
 import { UpdateFileTableMigrationCommand } from 'src/database/commands/upgrade-version-command/1-17/1-17-update-file-table-migration.command';
+import { MigrateAttachmentFilesCommand } from 'src/database/commands/upgrade-version-command/1-18/1-18-migrate-attachment-files.command';
 import { MigratePersonAvatarFilesCommand } from 'src/database/commands/upgrade-version-command/1-18/1-18-migrate-person-avatar-files.command';
 import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
@@ -51,6 +52,7 @@ export class UpgradeCommand extends UpgradeCommandRunner {
 
     // 1.18 Commands
     protected readonly migratePersonAvatarFilesCommand: MigratePersonAvatarFilesCommand,
+    protected readonly migrateAttachmentFilesCommand: MigrateAttachmentFilesCommand,
   ) {
     super(
       workspaceRepository,
@@ -76,6 +78,7 @@ export class UpgradeCommand extends UpgradeCommandRunner {
     ];
 
     const commands_1180: VersionCommands = [
+      this.migrateAttachmentFilesCommand,
       this.migratePersonAvatarFilesCommand,
     ];
 

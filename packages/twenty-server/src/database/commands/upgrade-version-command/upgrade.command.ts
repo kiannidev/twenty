@@ -18,6 +18,7 @@ import { MigrateNoteTargetToMorphRelationsCommand } from 'src/database/commands/
 import { MigrateTaskTargetToMorphRelationsCommand } from 'src/database/commands/upgrade-version-command/1-17/1-17-migrate-task-target-to-morph-relations.command';
 import { MigrateWorkflowCodeStepsCommand } from 'src/database/commands/upgrade-version-command/1-17/1-17-migrate-workflow-code-steps.command';
 import { UpdateFileTableMigrationCommand } from 'src/database/commands/upgrade-version-command/1-17/1-17-update-file-table-migration.command';
+import { MigratePersonAvatarFilesCommand } from 'src/database/commands/upgrade-version-command/1-18/1-18-migrate-person-avatar-files.command';
 import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 import { DataSourceService } from 'src/engine/metadata-modules/data-source/data-source.service';
@@ -47,6 +48,9 @@ export class UpgradeCommand extends UpgradeCommandRunner {
     protected readonly makeWebhookUniversalIdentifierAndApplicationIdNotNullableMigrationCommand: MakeWebhookUniversalIdentifierAndApplicationIdNotNullableMigrationCommand,
     protected readonly migrateWorkflowCodeStepsCommand: MigrateWorkflowCodeStepsCommand,
     protected readonly updateFileTableMigrationCommand: UpdateFileTableMigrationCommand,
+
+    // 1.18 Commands
+    protected readonly migratePersonAvatarFilesCommand: MigratePersonAvatarFilesCommand,
   ) {
     super(
       workspaceRepository,
@@ -71,9 +75,14 @@ export class UpgradeCommand extends UpgradeCommandRunner {
       this.updateFileTableMigrationCommand,
     ];
 
+    const commands_1180: VersionCommands = [
+      this.migratePersonAvatarFilesCommand,
+    ];
+
     this.allCommands = {
       '1.16.0': commands_1160,
       '1.17.0': commands_1170,
+      '1.18.0': commands_1180,
     };
   }
 

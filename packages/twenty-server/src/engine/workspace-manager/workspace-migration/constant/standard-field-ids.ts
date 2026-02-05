@@ -333,6 +333,7 @@ export const PERSON_STANDARD_FIELD_IDS = {
   phones: '20202020-0638-448e-8825-439134618022',
   city: '20202020-5243-4ffb-afc5-2c675da41346',
   avatarUrl: '20202020-b8a6-40df-961c-373dc5d2ec21',
+  avatarFile: '20202020-a7c9-4e3d-8f1b-2d5a6b7c8e9f',
   position: '20202020-fcd5-4231-aff5-fff583eaa0b1',
   createdBy: '20202020-f6ab-4d98-af24-a3d5b664148a',
   updatedBy: 'e9e0dd35-184c-4742-84da-afadf45ce59a',

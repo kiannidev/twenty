@@ -15,6 +15,7 @@ import {
 } from 'src/engine/core-modules/auth/types/auth-context.type';
 import { FileStorageService } from 'src/engine/core-modules/file-storage/file-storage.service';
 import { FileEntity } from 'src/engine/core-modules/file/entities/file.entity';
+import { FilesFieldFileDTO } from 'src/engine/core-modules/file/files-field/dtos/files-field-file.dto';
 import { extractFileInfo } from 'src/engine/core-modules/file/utils/extract-file-info.utils';
 import { removeFileFolderFromFileEntityPath } from 'src/engine/core-modules/file/utils/remove-file-folder-from-file-entity-path.utils';
 import { sanitizeFile } from 'src/engine/core-modules/file/utils/sanitize-file.utils';
@@ -53,7 +54,7 @@ export class FilesFieldService {
     declaredMimeType: string | undefined;
     workspaceId: string;
     fieldMetadataId: string;
-  }): Promise<FileEntity> {
+  }): Promise<FilesFieldFileDTO> {
     const { mimeType, ext } = await extractFileInfo({
       file,
       declaredMimeType,
@@ -80,7 +81,7 @@ export class FilesFieldService {
       },
     });
 
-    return await this.fileStorageService.writeFile({
+    const savedFile = await this.fileStorageService.writeFile({
       sourceFile: sanitizedFile,
       resourcePath: `${fieldMetadata.universalIdentifier}/${name}`,
       mimeType,
@@ -93,6 +94,11 @@ export class FilesFieldService {
         toDelete: false,
       },
     });
+
+    return {
+      ...savedFile,
+      url: this.signFileUrl({ fileId, workspaceId }),
+    };
   }
 
   async deleteFilesFieldFile({

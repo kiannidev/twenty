@@ -1,7 +1,12 @@
 import { Injectable } from '@nestjs/common';
 
+import { isDefined } from 'twenty-shared/utils';
+
 import { type QueryResultGetterHandlerInterface } from 'src/engine/api/graphql/workspace-query-runner/factories/query-result-getters/interfaces/query-result-getter-handler.interface';
 
+import { FeatureFlagKey } from 'src/engine/core-modules/feature-flag/enums/feature-flag-key.enum';
+import { FeatureFlagService } from 'src/engine/core-modules/feature-flag/services/feature-flag.service';
+import { FilesFieldService } from 'src/engine/core-modules/file/files-field/files-field.service';
 import { FileService } from 'src/engine/core-modules/file/services/file.service';
 import { type NoteWorkspaceEntity } from 'src/modules/note/standard-objects/note.workspace-entity';
 import { type TaskWorkspaceEntity } from 'src/modules/task/standard-objects/task.workspace-entity';
@@ -15,7 +20,11 @@ type RichTextBody = RichTextBlock[];
 export class ActivityQueryResultGetterHandler
   implements QueryResultGetterHandlerInterface
 {
-  constructor(private readonly fileService: FileService) {}
+  constructor(
+    private readonly fileService: FileService,
+    private readonly filesFieldService: FilesFieldService,
+    private readonly featureFlagService: FeatureFlagService,
+  ) {}
 
   async handle(
     activity: TaskWorkspaceEntity | NoteWorkspaceEntity,
@@ -42,8 +51,28 @@ export class ActivityQueryResultGetterHandler
       console.warn(blocknoteJson);
     }
 
+    const isFilesFieldMigrated = await this.featureFlagService.isFeatureEnabled(
+      FeatureFlagKey.IS_FILES_FIELD_MIGRATED,
+      workspaceId,
+    );
+
     const blocknoteWithSignedPayload = await Promise.all(
       blocknote.map(async (block: RichTextBlock) => {
+        if (isFilesFieldMigrated && isDefined(block.props.attachmentFileId)) {
+          const url = this.filesFieldService.signFileUrl({
+            fileId: block.props.attachmentFileId,
+            workspaceId,
+          });
+
+          return {
+            ...block,
+            props: {
+              ...block.props,
+              url,
+            },
+          };
+        }
+
         if (block.type !== 'image' || !block.props.url) {
           return block;
         }

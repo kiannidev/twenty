@@ -92,6 +92,7 @@ Common mistakes to avoid:
 - Missing the "name" and "valid" fields in steps
 - Missing the "objectRecord" field in CREATE_RECORD actions
 - Using "fieldsToUpdate" instead of "objectRecord" in CREATE_RECORD actions
+- Forgetting to call update_logic_function_source after creating CODE steps — this tool does NOT set the code, it only creates the step structure with a default placeholder function.
 
 IMPORTANT: The tool schema provides comprehensive field descriptions, examples, and validation rules. Always refer to the schema for:
 - Field requirements and data types

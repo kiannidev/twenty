@@ -40,6 +40,12 @@ const createWorkflowVersionStepSchema = z.object({
     })
     .optional()
     .describe('Optional position coordinates for the step'),
+  defaultSettings: z
+    .record(z.string(), z.any())
+    .optional()
+    .describe(
+      'Optional default settings for the step. Required for LOGIC_FUNCTION steps: pass { input: { logicFunctionId: "<id>" } }. Use list_logic_function_tools to discover available logic function IDs.',
+    ),
 });
 
 export const createCreateWorkflowVersionStepTool = (
@@ -84,13 +90,24 @@ export const createCreateWorkflowVersionStepTool = (
         }
       }
 
-      return await deps.workflowVersionStepService.createWorkflowVersionStep({
-        workspaceId: context.workspaceId,
-        input: {
-          ...parameters,
-          parentStepId: effectiveParentStepId,
-        },
-      });
+      const result =
+        await deps.workflowVersionStepService.createWorkflowVersionStep({
+          workspaceId: context.workspaceId,
+          input: {
+            ...parameters,
+            parentStepId: effectiveParentStepId,
+          },
+        });
+
+      if (parameters.stepType === WorkflowActionType.CODE) {
+        return {
+          ...result,
+          nextStep:
+            'This CODE step was created with a default placeholder function. You MUST now call update_logic_function_source with the logicFunctionId from this step to define the actual code.',
+        };
+      }
+
+      return result;
     } catch (error) {
       return {
         success: false,

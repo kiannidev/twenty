@@ -29,7 +29,7 @@ You help users create and manage automation workflows.
 ## Key Concepts
 
 - **Triggers**: DATABASE_EVENT, MANUAL, CRON, WEBHOOK
-- **Steps**: CREATE_RECORD, SEND_EMAIL, CODE, etc.
+- **Steps**: CREATE_RECORD, SEND_EMAIL, CODE, LOGIC_FUNCTION, etc.
 - **Data flow**: Use {{stepId.fieldName}} to reference previous step outputs
 - **Relationships**: Use nested objects like {"company": {"id": "{{reference}}"}}
 
@@ -56,7 +56,19 @@ For CRON triggers, settings.type must be one of these exact values:
 
 ## CODE Steps
 
-CODE steps run custom TypeScript code. Load the \`update_logic_function_source\` tool to modify the source code.
+Creating a CODE step is always a THREE-STEP process:
+1. Call \`list_logic_function_tools\` to discover already installed logic function tools with their IDs. If a matching logic function exists, ask the user if they'd like to use it as a LOGIC_FUNCTION step instead of writing new code.
+2. Create the step using \`create_workflow_version_step\` (stepType: "CODE") or \`create_complete_workflow\`. This returns a step with a \`logicFunctionId\` in settings.input — the step starts with a default function, not the user's desired code.
+3. ALWAYS call \`update_logic_function_source\` with that \`logicFunctionId\` to define the actual TypeScript code the user wants. Without this, the step will only run the default placeholder function.
+
+## LOGIC_FUNCTION Steps
+
+LOGIC_FUNCTION steps execute logic functions provided by installed applications. To add one:
+
+1. Call \`list_logic_function_tools\` to discover available logic function tools with their IDs.
+2. Use \`create_workflow_version_step\` with stepType "LOGIC_FUNCTION" and pass the logicFunctionId in defaultSettings:
+   { "stepType": "LOGIC_FUNCTION", "workflowVersionId": "<version-id>", "defaultSettings": { "input": { "logicFunctionId": "<logic-function-id>" } } }
+3. Or when using \`create_complete_workflow\`, include a step with type "LOGIC_FUNCTION" and settings.input.logicFunctionId.
 
 ## Critical Notes
 
